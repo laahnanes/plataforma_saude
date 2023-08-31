@@ -36,6 +36,9 @@ def abrirtela_criarconta():
     usuarioSeek = StringVar()
     emailSeek = StringVar ()
     senhaSeek = StringVar()
+    pesoSeek = IntVar()
+    alturaSeek = IntVar()
+    idadeSeek = IntVar()
 
     nome_usuario = Entry(tela_criarconta, textvariable=usuarioSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11') 
     nome_usuario.place(x=465, y=336)
@@ -43,22 +46,35 @@ def abrirtela_criarconta():
     novo_email.place(x=465, y=424)
     nova_senha = Entry(tela_criarconta, textvariable=senhaSeek, width=32,bg='#dadada', borderwidth='0', font='Arial''11')
     nova_senha.place(x=465, y=518)
+    peso = Entry(tela_criarconta, textvariable= pesoSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
+    peso.place(x=470, y=350)
+    altura = Entry(tela_criarconta, textvariable= alturaSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
+    altura.place(x=470, y=450)
+    idade = Entry(tela_criarconta, textvariable= idadeSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
+    idade.place(x=470, y=536)
+
 
 #função usada para cadastrar o usuario no banco de dados
     def cadastrar():
         nome_usuario = Entry(tela_criarconta, textvariable=usuarioSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11') 
         novo_email = Entry(tela_criarconta, textvariable=emailSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
         nova_senha = Entry(tela_criarconta, textvariable=senhaSeek, show= "*", width=32,bg='#dadada', borderwidth='0', font='Arial''11')
+        peso = Entry(tela_criarconta, textvariable= pesoSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
+        altura = Entry(tela_criarconta, textvariable= alturaSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
+        idade = Entry(tela_criarconta, textvariable= idadeSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
         nome_usuario = nome_usuario.get()
         novo_email = novo_email.get()
         nova_senha = nova_senha.get()
+        peso = peso.get()
+        altura = altura.get()
+        idade = idade.get()
  
         try: 
             #criando o banco de dados
             banco = sqlite3.connect('dados.sqlite')
             cursor = banco.cursor()
-            cursor.execute("CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nome text, email text, senha text)")
-            cursor.execute("INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)", (nome_usuario, novo_email, nova_senha))
+            cursor.execute("CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nome text, email text, senha text, peso inte, altura inte, idade inte)")
+            cursor.execute("INSERT INTO usuarios (nome, email, senha, peso, altura, idade) VALUES (?, ?, ?, ?, ?, ?)", (nome_usuario, novo_email, nova_senha, peso, altura, idade))
             banco.commit()
             banco.close()
             print('Tabela cadastrada!')
@@ -92,6 +108,24 @@ def abrirtela_principal():
 
     banco = sqlite3.connect('dados.sqlite')
     cursor = banco.cursor()
+    cursor.execute("SELECT id, nome, altura, peso, idade FROM usuarios WHERE email = ?", (email,))
+    user_info = cursor.fetchone()
+
+    if user_info:
+        id, nome, altura, peso, idade = user_info
+    
+    imc = peso / (altura * altura)
+    basal =447.593+(9.247*peso)+(3.098*altura)-(4.330*idade)
+
+    nome_label = Label(tela_principal, text=nome, font='Arial''11')
+    nome_label.place(x=500, y=100) 
+    altura_label = Label(tela_principal, text=imc, font='Arial''11')
+    altura_label.place(x=100, y=100)  
+    peso_label = Label(tela_principal, text=basal, font='Arial''11')
+    peso_label.place(x=100, y=130)
+    idade_label = Label(tela_principal, text=f"Idade: {idade} anos")
+    idade_label.place(x=100, y=160)
+
     try:
         #conferir se o usuario já é cadastrado
         cursor.execute("SELECT senha FROM usuarios WHERE email = '{}'".format(email))
@@ -103,7 +137,7 @@ def abrirtela_principal():
         tela_principal.destroy()
         erro = Label(tela_login, text='Usuário não cadastrado, tente novamente!', bg= '#FAFAFA').place(x=530, y=503)
 
-    def abrirtela_informes():
+    def atualizar_informes():
     
         tela_informes = Toplevel()
         tela_informes.geometry('1280x720')
@@ -120,29 +154,28 @@ def abrirtela_principal():
         idadeSeek = IntVar()
 
         peso = Entry(tela_informes, textvariable= pesoSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
-        peso.place(x=470, y=339)
+        peso.place(x=465, y=336)
         altura = Entry(tela_informes, textvariable= alturaSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
-        altura.place(x=470, y=425)
+        altura.place(x=465, y=424)
         idade = Entry(tela_informes, textvariable= idadeSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
-        idade.place(x=470, y=516)
+        idade.place(x=465, y=518)
 
         def atualizar():
 
             peso = Entry(tela_informes, textvariable= pesoSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
             altura = Entry(tela_informes, textvariable= alturaSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
             idade = Entry(tela_informes, textvariable= idadeSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
-            peso = peso.get()
-            altura = altura.get()
-            idade = idade.get()
+            pesonovo = peso.get()
+            alturanovo = altura.get()
+            idadenovo = idade.get()
 
             try: 
                 banco = sqlite3.connect('dados.sqlite')
                 cursor = banco.cursor()
-                cursor.execute("CREATE TABLE IF NOT EXISTS medidas (id INTEGER PRIMARY KEY AUTOINCREMENT, peso inte, altura inte, idade inte)")
-                cursor.execute("INSERT INTO medidas (peso, altura, idade) VALUES (?, ?, ?)", (peso, altura, idade))
+                cursor.execute("UPDATE usuarios SET peso=?, altura=?, idade=? WHERE id=?", (pesonovo, alturanovo, idadenovo, id))
                 banco.commit()
                 banco.close()
-                print('Tabela cadastrada!')
+                print('Atualizado!')
 
             except sqlite3.Error as erro:
                 print("Erro nos dados: ", erro)
@@ -157,9 +190,9 @@ def abrirtela_principal():
     fundo_botao_consumo = PhotoImage(file='imgs\\waterBotton.png')
     fundo_botao_controlepeso = PhotoImage(file='imgs\\pesoBotton.png') 
 
-    botao_novasmedidas = Button(tela_principal, width=180, height=53, image=fundo_botao_novasmedidas, borderwidth=0, command=abrirtela_informes )
+    botao_novasmedidas = Button(tela_principal, width=180, height=53, image=fundo_botao_novasmedidas, borderwidth=0, command=atualizar_informes)
     botao_novasmedidas.place(x=32, y=495)
-    botao_meditacao = Button(tela_principal, width=214, height=233, image=fundo_botao_meditacao, borderwidth=0, command=tmb)
+    botao_meditacao = Button(tela_principal, width=214, height=233, image=fundo_botao_meditacao, borderwidth=0)
     botao_meditacao.place(x=348, y=385)
     botao_consumo = Button(tela_principal, width=214, height=233, image=fundo_botao_consumo, borderwidth=0)
     botao_consumo.place(x=660, y=385)
@@ -167,6 +200,7 @@ def abrirtela_principal():
     botao_controlepeso.place(x=969, y=385)
 
     tela_principal.mainloop()
+
 
 #conteúdo primeira tela
 
