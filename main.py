@@ -29,7 +29,7 @@ def abrirtela_criarconta():
     tela_criarconta.title('Heath Point')
     center(tela_criarconta)
 
-    fundo_tela_criarconta = PhotoImage(file='imgs\\criar.png')
+    fundo_tela_criarconta = PhotoImage(file='imgs\\Facul-TelaInformar.png')
     label_login = Label(tela_criarconta, image=fundo_tela_criarconta)
     label_login.pack()
     
@@ -41,17 +41,17 @@ def abrirtela_criarconta():
     idadeSeek = IntVar()
 
     nome_usuario = Entry(tela_criarconta, textvariable=usuarioSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11') 
-    nome_usuario.place(x=465, y=336)
+    nome_usuario.place(x=268, y=360)
     novo_email = Entry(tela_criarconta, textvariable=emailSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
-    novo_email.place(x=465, y=424)
+    novo_email.place(x=268, y=448)
     nova_senha = Entry(tela_criarconta, textvariable=senhaSeek, width=32,bg='#dadada', borderwidth='0', font='Arial''11')
-    nova_senha.place(x=465, y=518)
-    peso = Entry(tela_criarconta, textvariable= pesoSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
-    peso.place(x=470, y=350)
-    altura = Entry(tela_criarconta, textvariable= alturaSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
-    altura.place(x=470, y=450)
-    idade = Entry(tela_criarconta, textvariable= idadeSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
-    idade.place(x=470, y=536)
+    nova_senha.place(x=268, y=538)
+    peso = Entry(tela_criarconta, textvariable= pesoSeek, width=25, bg='#87e496', borderwidth='0', font='Arial''11')
+    peso.place(x=730, y=358)
+    altura = Entry(tela_criarconta, textvariable= alturaSeek, width=25, bg='#87e496', borderwidth='0', font='Arial''11')
+    altura.place(x=730, y=445)
+    idade = Entry(tela_criarconta, textvariable= idadeSeek, width=25, bg='#87e496', borderwidth='0', font='Arial''11')
+    idade.place(x=730, y=536)
 
 
 #função usada para cadastrar o usuario no banco de dados
@@ -86,7 +86,7 @@ def abrirtela_criarconta():
     imgBT_criareentrar=PhotoImage(file='imgs\\bottonCriarEntrar.png')
 
     botao_criareentrar = Button(tela_criarconta, bd=0, image=imgBT_criareentrar, command=cadastrar)
-    botao_criareentrar.place(width=135, height=43, x=571, y=572)
+    botao_criareentrar.place(width=135, height=43, x=512, y=589)
 
     tela_criarconta.mainloop()
 
@@ -102,7 +102,7 @@ def abrirtela_principal():
 
     email = emailSeek.get()
 
-    fundo_tela_principal = PhotoImage(file='imgs\\TelaPrincipal.png')
+    fundo_tela_principal = PhotoImage(file='imgs\\Facul-TelaPrincipal.png')
     label_tela_principal = Label(tela_principal, image=fundo_tela_principal)
     label_tela_principal.pack()
 
@@ -114,17 +114,35 @@ def abrirtela_principal():
     if user_info:
         id, nome, altura, peso, idade = user_info
     
-    imc = peso / (altura * altura)
-    basal =447.593+(9.247*peso)+(3.098*altura)-(4.330*idade)
+    basal = (0.879 * peso) + (10.2 * altura) - (5.23 * idade) - 161
 
-    nome_label = Label(tela_principal, text=nome, font='Arial''11')
-    nome_label.place(x=500, y=100) 
-    altura_label = Label(tela_principal, text=imc, font='Arial''11')
-    altura_label.place(x=100, y=100)  
-    peso_label = Label(tela_principal, text=basal, font='Arial''11')
-    peso_label.place(x=100, y=130)
-    idade_label = Label(tela_principal, text=f"Idade: {idade} anos")
-    idade_label.place(x=100, y=160)
+    alt_imc = altura / 100
+    imc = peso / (alt_imc**2)
+    if imc < 18.5:
+        status_imc = Label(tela_principal, text='Abaixo do peso', bg='#008923', fg='#f2f6f4', font=("Roboto", 11))
+        status_imc.place(x=95,y=293)
+    elif 18.5 < imc <= 25:
+        status_imc = Label(tela_principal, text='Peso ideal', bg='#008923', fg='#f2f6f4', font=("Roboto", 11))
+        status_imc.place(x=95,y=293)
+    elif imc <= 30:
+        status_imc = Label(tela_principal, text='Sobrepeso', bg='#008923', fg='#f2f6f4', font=("Roboto", 11))
+        status_imc.place(x=95,y=293)
+    elif imc <= 40:
+        status_imc = Label(tela_principal, text= 'Obesidade', bg='#008923', fg='#f2f6f4', font=("Roboto", 11))
+        status_imc.place(x=95,y=293)
+    else:
+        status_imc = Label(tela_principal, text= 'Obesidade mórbida', bg='#008923', fg='#f2f6f4', font=("Roboto", 11))
+        status_imc.place(x=95,y=293)
+    consumo = 0.35 * peso
+
+    nome_label = Label(tela_principal, text=f"Oi, {nome}!", bg='#dadada', font=("Helvetica", 35, "bold"))
+    nome_label.place(x=384, y=136) 
+    basal_label = Label(tela_principal, text=f"{basal:.2f} cal.", bg='#008923', fg='#f2f6f4', font=("Roboto", 14))
+    basal_label.place(x=95, y=157)  
+    imc_label = Label(tela_principal, text=f"{imc:.2f} hg/m2", bg='#008923', fg='#f2f6f4', font=("Roboto", 14))
+    imc_label.place(x=95, y=268)
+    consumo_label = Label(tela_principal, text=f"{consumo:.2f} L", bg='#008923', fg='#f2f6f4', font=("Roboto", 14))
+    consumo_label.place(x=90, y=394)
 
     try:
         #conferir se o usuario já é cadastrado
