@@ -133,7 +133,9 @@ def abrirtela_principal():
     else:
         status_imc = Label(tela_principal, text= 'Obesidade mórbida', bg='#008923', fg='#f2f6f4', font=("Roboto", 11))
         status_imc.place(x=95,y=293)
-    consumo = 0.35 * peso
+
+    consumo = 35 * peso
+    consumo = consumo / 1000
 
     nome_label = Label(tela_principal, text=f"Oi, {nome}!", bg='#dadada', font=("Helvetica", 35, "bold"))
     nome_label.place(x=384, y=136) 
