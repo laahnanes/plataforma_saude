@@ -20,6 +20,129 @@ def center(win):
 
     win.geometry(f'{width}x{height}+{x}+{y}')
 
+#função do cronômetro
+
+def abrir_meditacao():
+
+    # cores
+    cor1 = "#fafcff"  # black / preta
+    cor2 = "#21c25c"  # white / branca
+    cor3 = "#21c25c"  # green / verde
+    cor4 = "#21c25c"  # red / vermelha
+    cor5 = "#dedcdc"  # gray / Cizenta
+    cor6 = "#3080f0"  # blue / azul
+
+    #janela
+    janela = Tk()
+    janela.title('Meditação')
+    janela.geometry('300x180')
+    janela.configure(bg=cor1)
+    #janela.wm_resizable(width=False, height=False)
+    center(janela)
+
+    #Definindo variaveis globais
+
+    global tempo
+    global radar
+    global contador
+    global limitador
+
+    limitador = 58
+    tempo = '00:00:00'
+    rodar = True
+    contador = -3
+
+    #funcao iniciar
+    def iniciar():
+        global tempo
+        global contador
+        global limitador
+
+        if rodar:
+            #Antes do cronômetro começar
+            if contador <= -1:
+                inicio = 'Comecando em' +str(contador)
+                Label_tempo['text'] = inicio
+                Label_tempo['font'] = 'Arial 10'
+            #Rodando o cronômetro
+            else:
+                Label_tempo['font'] = 'Times 50 bold'
+
+                temporario = str(tempo)
+                h,m,s = map(int,temporario.split(':'))
+                h = int(h)
+                m = int(m)
+                s = int(s)
+
+                s+=1
+
+                if s>= 60:
+                    s=0
+                    m+=1
+
+                if m >= 60:
+                    m = 0
+                    h += 1
+            
+
+                s = str(0)+str(s)
+                m = str(0)+str(m)
+                h = str(0)+str(h)
+
+                #Atualizando os valores
+                temporario = str(h[-2:]) +':' + str(m[-2:]) +':' + str(s[-2:])
+
+                Label_tempo['text'] = temporario
+
+                tempo = temporario
+
+            Label_tempo.after(1000, iniciar)
+            contador += 1
+
+    #funcao para dar inicio
+    def start():
+        global rodar
+        rodar = True
+        iniciar()
+
+    #funcao para pausar
+    def pausar():
+        global rodar
+        rodar = False
+        iniciar()
+
+    #funcao para reiniciar
+    def reiniciar():
+        global contador
+        global tempo
+        global rodar
+
+        rodar=True
+
+        #reiniciando o tempo e o contador
+        contador = 0
+        tempo = '00:00:00'
+        Label_tempo['text'] = tempo
+
+    #Criando Labels
+    Label_app = Label(janela, text='Cronômetro', font=('Arial 10'), bg=cor1, fg=cor2)
+    Label_app.place(x=20, y=5)
+
+    Label_tempo = Label(janela, text=tempo, font=('Times 50 bold'), bg=cor1, fg=cor4)
+    Label_tempo.place(x=20, y=30)
+
+    #Botoes
+    botao_iniciar = Button(janela,command= start, text='Iniciar', width=10, height=2, bg=cor1, fg=cor2, font=('Ivy 8 bold'), relief='raised', overrelief='ridge')
+    botao_iniciar.place(x=20, y=130)
+
+    botao_pausar = Button(janela,command= pausar, text='Pausar', width=10, height=2, bg=cor1, fg=cor2, font=('Ivy 8 bold'), relief='raised', overrelief='ridge')
+    botao_pausar.place(x=105, y=130)
+
+    botao_reiniciar = Button(janela,command= reiniciar, text='Reiniciar', width=10, height=2, bg=cor1, fg=cor2, font=('Ivy 8 bold'), relief='raised', overrelief='ridge')
+    botao_reiniciar.place(x=190, y=130)
+
+    janela.mainloop()
+
 #função para abrir a tela criar conta
 def abrirtela_criarconta():
     
@@ -106,6 +229,20 @@ def abrirtela_principal():
     label_tela_principal = Label(tela_principal, image=fundo_tela_principal)
     label_tela_principal.pack()
 
+    try:
+        #conferir se o usuario já é cadastrado
+        banco = sqlite3.connect('dados.sqlite')
+        cursor = banco.cursor()
+        cursor.execute("SELECT senha FROM usuarios WHERE email = '{}'".format(email))
+        senha_bd = cursor.fetchall()
+        print(senha_bd[0][0])
+        banco.close()
+    
+    except:
+        tela_principal.destroy()
+        erro = Label(tela_login, text='Usuário não cadastrado, tente novamente!', bg= '#FAFAFA').place(x=530, y=503)
+
+  #coletar dados do usuário
     banco = sqlite3.connect('dados.sqlite')
     cursor = banco.cursor()
     cursor.execute("SELECT id, nome, altura, peso, idade FROM usuarios WHERE email = ?", (email,))
@@ -113,7 +250,10 @@ def abrirtela_principal():
 
     if user_info:
         id, nome, altura, peso, idade = user_info
-    
+
+    consumo = 35 * peso
+    consumo = consumo / 1000
+
     basal = (0.879 * peso) + (10.2 * altura) - (5.23 * idade) - 161
 
     alt_imc = altura / 100
@@ -134,9 +274,7 @@ def abrirtela_principal():
         status_imc = Label(tela_principal, text= 'Obesidade mórbida', bg='#008923', fg='#f2f6f4', font=("Roboto", 11))
         status_imc.place(x=95,y=293)
 
-    consumo = 35 * peso
-    consumo = consumo / 1000
-
+    #visualizar os resultados na tela
     nome_label = Label(tela_principal, text=f"Oi, {nome}!", bg='#dadada', font=("Helvetica", 35, "bold"))
     nome_label.place(x=384, y=136) 
     basal_label = Label(tela_principal, text=f"{basal:.2f} cal.", bg='#008923', fg='#f2f6f4', font=("Roboto", 14))
@@ -146,17 +284,7 @@ def abrirtela_principal():
     consumo_label = Label(tela_principal, text=f"{consumo:.2f} L", bg='#008923', fg='#f2f6f4', font=("Roboto", 14))
     consumo_label.place(x=90, y=394)
 
-    try:
-        #conferir se o usuario já é cadastrado
-        cursor.execute("SELECT senha FROM usuarios WHERE email = '{}'".format(email))
-        senha_bd = cursor.fetchall()
-        print(senha_bd[0][0])
-        banco.close()
-    
-    except:
-        tela_principal.destroy()
-        erro = Label(tela_login, text='Usuário não cadastrado, tente novamente!', bg= '#FAFAFA').place(x=530, y=503)
-
+    #abrir tela de atualizar informes
     def atualizar_informes():
     
         tela_informes = Toplevel()
@@ -180,6 +308,7 @@ def abrirtela_principal():
         idade = Entry(tela_informes, textvariable= idadeSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
         idade.place(x=465, y=518)
 
+        #atualiza os dados do banco
         def atualizar():
 
             peso = Entry(tela_informes, textvariable= pesoSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
@@ -212,7 +341,7 @@ def abrirtela_principal():
 
     botao_novasmedidas = Button(tela_principal, width=180, height=53, image=fundo_botao_novasmedidas, borderwidth=0, command=atualizar_informes)
     botao_novasmedidas.place(x=32, y=495)
-    botao_meditacao = Button(tela_principal, width=214, height=233, image=fundo_botao_meditacao, borderwidth=0)
+    botao_meditacao = Button(tela_principal, width=214, height=233, image=fundo_botao_meditacao, borderwidth=0, command=abrir_meditacao)
     botao_meditacao.place(x=348, y=385)
     botao_consumo = Button(tela_principal, width=214, height=233, image=fundo_botao_consumo, borderwidth=0)
     botao_consumo.place(x=660, y=385)
