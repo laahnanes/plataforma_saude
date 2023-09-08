@@ -1,5 +1,7 @@
 from tkinter import * 
 import sqlite3
+import datetime
+import matplotlib.pyplot as plt
 
 tela_login = Tk()
 
@@ -274,6 +276,140 @@ def abrirtela_principal():
         status_imc = Label(tela_principal, text= 'Obesidade mórbida', bg='#008923', fg='#f2f6f4', font=("Roboto", 11))
         status_imc.place(x=95,y=293)
 
+    def consumoagua():
+
+        def conectar_banco():
+
+            banco = sqlite3.connect('dados.sqlite')
+            cursor = banco.cursor()
+            cursor.execute("SELECT id FROM usuarios WHERE email = ?", (email,))
+            id_bd = cursor.fetchone()
+            print(f'Essa é a senha: {id_bd}')
+            banco.close()
+        
+            if id_bd:
+                user_id = id_bd[0]
+
+                nome_banco = f"registro_agua_{user_id}.sqlite"
+                banco_agua = sqlite3.connect(nome_banco)
+                cursor = banco_agua.cursor()
+            
+            banco_agua = sqlite3.connect(nome_banco)
+            cursor = banco_agua.cursor()
+            cursor.execute("CREATE TABLE IF NOT EXISTS registros (data DATE, litros FLOAT)")
+            banco_agua.commit()
+            return banco_agua, cursor
+
+        def registrar_agua():
+            litros = float(entry_litros.get())
+            if litros <= 0:
+                return
+
+            banco_agua, cursor = conectar_banco()
+            data_atual = datetime.date.today()
+
+            cursor.execute("SELECT * FROM registros WHERE data=?", (data_atual,))
+            registro_existente = cursor.fetchone()
+
+            if registro_existente:
+                litros_total = registro_existente[1] + litros
+                cursor.execute("UPDATE registros SET litros=? WHERE data=?", (litros_total, data_atual))
+            else:
+                cursor.execute("INSERT INTO registros (data, litros) VALUES (?, ?)", (data_atual, litros))
+
+            banco_agua.commit()
+            banco_agua.close()
+            entry_litros.delete(0, END)  # Limpar o campo de entrada
+
+        def exibir_registros_semana():
+            banco_agua, cursor = conectar_banco()
+            data_atual = datetime.date.today()
+            data_inicio_semana = data_atual - datetime.timedelta(days=data_atual.weekday())
+            data_fim_semana = data_inicio_semana + datetime.timedelta(days=6)
+
+            cursor.execute("SELECT * FROM registros WHERE data BETWEEN ? AND ?", (data_inicio_semana, data_fim_semana))
+            registros_semana = cursor.fetchall()
+
+            banco_agua.close()
+
+            datas = [registro[0] for registro in registros_semana]
+            litros = [registro[1] for registro in registros_semana]
+
+            cor_das_barras = 'green'
+            fonte = 'Cambria'
+            plt.bar(datas, litros, color= cor_das_barras)
+            plt.xlabel("Data", fontdict={'fontsize': 14, 'fontname': fonte})
+            plt.ylabel("Litros", fontdict={'fontsize': 14, 'fontname': fonte})
+            plt.title("Consumo de Água na Semana", fontdict={'fontsize': 14, 'fontname': fonte})
+            plt.xticks(rotation=45)
+            plt.show()
+        
+            texto_registros.delete(1.0, END)  # Limpar o campo de texto
+            for registro in registros_semana:
+                data, litros = registro
+                texto_registros.insert(END, f'Data: {data}, Litros: {litros}\n')
+
+        janela = Tk()
+        janela.title("Registro de Consumo de Água")
+        janela.geometry("400x300")
+        center(janela)
+
+        # Criar widgets
+        label_litros = Label(janela, text="Quantidade de Litros:" )
+        label_litros.pack()
+
+        entry_litros = Entry(janela)
+        entry_litros.pack()
+
+        botao_registrar = Button(janela, text="Registrar", command=registrar_agua)
+        botao_registrar.pack()
+
+        botao_exibir_semana = Button(janela, text="Exibir Registros da Semana", command=exibir_registros_semana)
+        botao_exibir_semana.pack()
+
+        texto_registros = Text(janela, height=10, width=40)
+        texto_registros.pack()
+
+        janela.mainloop()
+
+    def controlepeso():
+        
+        banco = sqlite3.connect('dados.sqlite')
+        cursor = banco.cursor()
+        cursor.execute("SELECT id FROM usuarios WHERE email = ?", (email,))
+        id_bd = cursor.fetchone()
+        print(f'Essa é a senha: {id_bd}')
+        banco.close()
+        
+        if id_bd:
+            user_id = id_bd[0]
+            datas = datetime.date.today()
+
+        nome_banco = f"controle_peso_{user_id}.sqlite"
+        banco_agua = sqlite3.connect(nome_banco)
+        cursor = banco_agua.cursor()
+        data_atual = datetime.date.today()
+        cursor.execute("CREATE TABLE IF NOT EXISTS pesos (data DATE, peso FLOAT)")
+        banco_agua.commit()
+        cursor.execute("INSERT INTO pesos (data, peso) VALUES (?, ?)", (data_atual, peso))
+        banco_agua.commit()
+        cursor.execute("SELECT data, peso FROM pesos")
+        registros = cursor.fetchall()
+
+        datas = [registro[0] for registro in registros]
+        pesos = [registro[1] for registro in registros]
+
+        linha_base = imc
+        fonte = 'Cambria'
+        plt.plot(datas, pesos, marker='o', linestyle='-', color='green')
+        plt.axhline(linha_base, color='black', linestyle='--', label=f'Linha Base: {linha_base}')
+        plt.xlabel("Data", fontdict={'fontsize': 14, 'fontname': fonte})
+        plt.ylabel("Peso", fontdict={'fontsize': 14, 'fontname': fonte})
+        plt.title("Controle de Peso", fontdict={'fontsize': 14, 'fontname': fonte})
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+
     #visualizar os resultados na tela
     nome_label = Label(tela_principal, text=f"Oi, {nome}!", bg='#dadada', font=("Helvetica", 35, "bold"))
     nome_label.place(x=384, y=136) 
@@ -323,8 +459,20 @@ def abrirtela_principal():
                 cursor = banco.cursor()
                 cursor.execute("UPDATE usuarios SET peso=?, altura=?, idade=? WHERE id=?", (pesonovo, alturanovo, idadenovo, id))
                 banco.commit()
+                cursor.execute("SELECT id FROM usuarios WHERE email = ?", (email,))
+                id_bd = cursor.fetchone()
+                print(f'Essa é a senha: {id_bd}')
                 banco.close()
-                print('Atualizado!')
+        
+                if id_bd:
+                    user_id = id_bd[0]
+
+                    nome_banco = f"controle_peso_{user_id}.sqlite"
+                    banco_agua = sqlite3.connect(nome_banco)
+                    cursor = banco_agua.cursor()
+                    cursor.execute("CREATE TABLE IF NOT EXISTS pesos (data DATE, peso FLOAT)")
+                    banco_agua.commit()
+                    banco_agua.close()
 
             except sqlite3.Error as erro:
                 print("Erro nos dados: ", erro)
@@ -343,9 +491,9 @@ def abrirtela_principal():
     botao_novasmedidas.place(x=32, y=495)
     botao_meditacao = Button(tela_principal, width=214, height=233, image=fundo_botao_meditacao, borderwidth=0, command=abrir_meditacao)
     botao_meditacao.place(x=348, y=385)
-    botao_consumo = Button(tela_principal, width=214, height=233, image=fundo_botao_consumo, borderwidth=0)
+    botao_consumo = Button(tela_principal, width=214, height=233, image=fundo_botao_consumo, borderwidth=0, command=consumoagua)
     botao_consumo.place(x=660, y=385)
-    botao_controlepeso = Button(tela_principal, width=214, height=233, image=fundo_botao_controlepeso, borderwidth=0)
+    botao_controlepeso = Button(tela_principal, width=214, height=233, image=fundo_botao_controlepeso, borderwidth=0, command=controlepeso)
     botao_controlepeso.place(x=969, y=385)
 
     tela_principal.mainloop()
