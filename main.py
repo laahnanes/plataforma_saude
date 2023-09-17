@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 tela_login = Tk()
 
-#função usada para centralizar as telas
+#função usada para centralizar as telas (1 pessoa)
 def center(win):
     
     win.update_idletasks()  
@@ -22,27 +22,21 @@ def center(win):
 
     win.geometry(f'{width}x{height}+{x}+{y}')
 
-#função do cronômetro
+#função do cronômetro (Pedro)
 
 def abrir_meditacao():
 
-    # cores
-    cor1 = "#fafcff"  # black / preta
-    cor2 = "#21c25c"  # white / branca
-    cor3 = "#21c25c"  # green / verde
-    cor4 = "#21c25c"  # red / vermelha
-    cor5 = "#dedcdc"  # gray / Cizenta
-    cor6 = "#3080f0"  # blue / azul
+    cor1 = "#fafcff" 
+    cor2 = "#21c25c"  
+    cor3 = "#21c25c" 
+    cor4 = "#21c25c"  
 
-    #janela
     janela = Tk()
     janela.title('Meditação')
     janela.geometry('300x180')
     janela.configure(bg=cor1)
-    #janela.wm_resizable(width=False, height=False)
+    janela.wm_resizable(width=False, height=False)
     center(janela)
-
-    #Definindo variaveis globais
 
     global tempo
     global radar
@@ -54,19 +48,18 @@ def abrir_meditacao():
     rodar = True
     contador = -3
 
-    #funcao iniciar
     def iniciar():
         global tempo
         global contador
         global limitador
 
         if rodar:
-            #Antes do cronômetro começar
+        
             if contador <= -1:
                 inicio = 'Comecando em' +str(contador)
                 Label_tempo['text'] = inicio
                 Label_tempo['font'] = 'Arial 10'
-            #Rodando o cronômetro
+           
             else:
                 Label_tempo['font'] = 'Times 50 bold'
 
@@ -91,7 +84,7 @@ def abrir_meditacao():
                 m = str(0)+str(m)
                 h = str(0)+str(h)
 
-                #Atualizando os valores
+                
                 temporario = str(h[-2:]) +':' + str(m[-2:]) +':' + str(s[-2:])
 
                 Label_tempo['text'] = temporario
@@ -101,19 +94,19 @@ def abrir_meditacao():
             Label_tempo.after(1000, iniciar)
             contador += 1
 
-    #funcao para dar inicio
+   
     def start():
         global rodar
         rodar = True
         iniciar()
 
-    #funcao para pausar
+    
     def pausar():
         global rodar
         rodar = False
         iniciar()
 
-    #funcao para reiniciar
+
     def reiniciar():
         global contador
         global tempo
@@ -121,19 +114,19 @@ def abrir_meditacao():
 
         rodar=True
 
-        #reiniciando o tempo e o contador
+        
         contador = 0
         tempo = '00:00:00'
         Label_tempo['text'] = tempo
 
-    #Criando Labels
+    
     Label_app = Label(janela, text='Cronômetro', font=('Arial 10'), bg=cor1, fg=cor2)
     Label_app.place(x=20, y=5)
 
     Label_tempo = Label(janela, text=tempo, font=('Times 50 bold'), bg=cor1, fg=cor4)
     Label_tempo.place(x=20, y=30)
 
-    #Botoes
+
     botao_iniciar = Button(janela,command= start, text='Iniciar', width=10, height=2, bg=cor1, fg=cor2, font=('Ivy 8 bold'), relief='raised', overrelief='ridge')
     botao_iniciar.place(x=20, y=130)
 
@@ -145,7 +138,7 @@ def abrir_meditacao():
 
     janela.mainloop()
 
-#função para abrir a tela criar conta
+#função para abrir a tela criar conta (Harthur)
 def abrirtela_criarconta():
     
     tela_criarconta= Toplevel()
@@ -179,7 +172,7 @@ def abrirtela_criarconta():
     idade.place(x=730, y=536)
 
 
-#função usada para cadastrar o usuario no banco de dados
+#função usada para cadastrar o usuario no banco de dados (Larah)
     def cadastrar():
         nome_usuario = Entry(tela_criarconta, textvariable=usuarioSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11') 
         novo_email = Entry(tela_criarconta, textvariable=emailSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
@@ -195,7 +188,7 @@ def abrirtela_criarconta():
         idade = idade.get()
  
         try: 
-            #criando o banco de dados
+            
             banco = sqlite3.connect('dados.sqlite')
             cursor = banco.cursor()
             cursor.execute("CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nome text, email text, senha text, peso inte, altura inte, idade inte)")
@@ -215,7 +208,7 @@ def abrirtela_criarconta():
 
     tela_criarconta.mainloop()
 
-#função usada para abrir tela principal
+#função usada para abrir tela principal (Larah)
 def abrirtela_principal():
 
     tela_principal= Toplevel()
@@ -232,7 +225,7 @@ def abrirtela_principal():
     label_tela_principal.pack()
 
     try:
-        #conferir se o usuario já é cadastrado
+    
         banco = sqlite3.connect('dados.sqlite')
         cursor = banco.cursor()
         cursor.execute("SELECT senha FROM usuarios WHERE email = '{}'".format(email))
@@ -244,7 +237,6 @@ def abrirtela_principal():
         tela_principal.destroy()
         erro = Label(tela_login, text='Usuário não cadastrado, tente novamente!', bg= '#FAFAFA').place(x=530, y=503)
 
-  #coletar dados do usuário
     banco = sqlite3.connect('dados.sqlite')
     cursor = banco.cursor()
     cursor.execute("SELECT id, nome, altura, peso, idade FROM usuarios WHERE email = ?", (email,))
@@ -253,6 +245,7 @@ def abrirtela_principal():
     if user_info:
         id, nome, altura, peso, idade = user_info
 
+#Cálculos gerais (1 pessoa)
     consumo = 35 * peso
     consumo = consumo / 1000
 
@@ -276,17 +269,18 @@ def abrirtela_principal():
         status_imc = Label(tela_principal, text= 'Obesidade mórbida', bg='#008923', fg='#f2f6f4', font=("Roboto", 11))
         status_imc.place(x=95,y=293)
 
+#função que chama o controle de água (Larah)
     def consumoagua():
 
         def conectar_banco():
-
+       
             banco = sqlite3.connect('dados.sqlite')
             cursor = banco.cursor()
             cursor.execute("SELECT id FROM usuarios WHERE email = ?", (email,))
             id_bd = cursor.fetchone()
             print(f'Essa é a senha: {id_bd}')
             banco.close()
-        
+
             if id_bd:
                 user_id = id_bd[0]
 
@@ -319,8 +313,9 @@ def abrirtela_principal():
 
             banco_agua.commit()
             banco_agua.close()
-            entry_litros.delete(0, END)  # Limpar o campo de entrada
+            entry_litros.delete(0, END)  
 
+        #função de criação do gráfico de registros de água (1 pessoa)
         def exibir_registros_semana():
             banco_agua, cursor = conectar_banco()
             data_atual = datetime.date.today()
@@ -343,8 +338,8 @@ def abrirtela_principal():
             plt.title("Consumo de Água na Semana", fontdict={'fontsize': 14, 'fontname': fonte})
             plt.xticks(rotation=45)
             plt.show()
-        
-            texto_registros.delete(1.0, END)  # Limpar o campo de texto
+
+            texto_registros.delete(1.0, END)  
             for registro in registros_semana:
                 data, litros = registro
                 texto_registros.insert(END, f'Data: {data}, Litros: {litros}\n')
@@ -354,7 +349,6 @@ def abrirtela_principal():
         janela.geometry("400x300")
         center(janela)
 
-        # Criar widgets
         label_litros = Label(janela, text="Quantidade de Litros:" )
         label_litros.pack()
 
@@ -372,7 +366,8 @@ def abrirtela_principal():
 
         janela.mainloop()
 
-    def controlepeso():
+
+    def controlepeso(): #(1 pessoa)
         
         banco = sqlite3.connect('dados.sqlite')
         cursor = banco.cursor()
@@ -399,10 +394,9 @@ def abrirtela_principal():
         datas = [registro[0] for registro in registros]
         pesos = [registro[1] for registro in registros]
 
-        linha_base = imc
+        
         fonte = 'Cambria'
         plt.plot(datas, pesos, marker='o', linestyle='-', color='green')
-        plt.axhline(linha_base, color='black', linestyle='--', label=f'Linha Base: {linha_base}')
         plt.xlabel("Data", fontdict={'fontsize': 14, 'fontname': fonte})
         plt.ylabel("Peso", fontdict={'fontsize': 14, 'fontname': fonte})
         plt.title("Controle de Peso", fontdict={'fontsize': 14, 'fontname': fonte})
@@ -410,7 +404,7 @@ def abrirtela_principal():
         plt.tight_layout()
         plt.show()
 
-    #visualizar os resultados na tela
+    #visualizar os resultados na tela (mesma pessoa de calculos)
     nome_label = Label(tela_principal, text=f"Oi, {nome}!", bg='#dadada', font=("Helvetica", 35, "bold"))
     nome_label.place(x=384, y=136) 
     basal_label = Label(tela_principal, text=f"{basal:.2f} cal.", bg='#008923', fg='#f2f6f4', font=("Roboto", 14))
@@ -420,7 +414,7 @@ def abrirtela_principal():
     consumo_label = Label(tela_principal, text=f"{consumo:.2f} L", bg='#008923', fg='#f2f6f4', font=("Roboto", 14))
     consumo_label.place(x=90, y=394)
 
-    #abrir tela de atualizar informes
+    #abrir tela de atualizar informes (Larah) 
     def atualizar_informes():
     
         tela_informes = Toplevel()
@@ -444,7 +438,7 @@ def abrirtela_principal():
         idade = Entry(tela_informes, textvariable= idadeSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
         idade.place(x=465, y=518)
 
-        #atualiza os dados do banco
+        #atualiza os dados do banco (Larah)
         def atualizar():
 
             peso = Entry(tela_informes, textvariable= pesoSeek, width=32, bg='#dadada', borderwidth='0', font='Arial''11')
@@ -499,7 +493,7 @@ def abrirtela_principal():
     tela_principal.mainloop()
 
 
-#conteúdo primeira tela
+#conteúdo tela de login (Harthur)
 
 tela_login.geometry('1280x720')
 tela_login.resizable(False, False)
@@ -526,4 +520,3 @@ botao_entrar=Button(tela_login, bd=0, image=imgBT_entrar, command=abrirtela_prin
 botao_entrar.place(width=135, height=43, x=490, y=536)
 
 tela_login.mainloop()
-
