@@ -191,12 +191,11 @@ def abrirtela_criarconta():
             
             banco = sqlite3.connect('dados.sqlite')
             cursor = banco.cursor()
-            cursor.execute("CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nome text, email text, senha text, peso inte, altura inte, idade inte)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nome text, email text, senha text, peso FLOAT, altura FLOAT, idade FLOAT)")
             cursor.execute("INSERT INTO usuarios (nome, email, senha, peso, altura, idade) VALUES (?, ?, ?, ?, ?, ?)", (nome_usuario, novo_email, nova_senha, peso, altura, idade))
             banco.commit()
             banco.close()
             print('Tabela cadastrada!')
-            tela_criarconta.destroy()
 
         except sqlite3.Error as erro:
             print("Erro nos dados: ", erro)
@@ -288,11 +287,9 @@ def abrirtela_principal():
                 banco_agua = sqlite3.connect(nome_banco)
                 cursor = banco_agua.cursor()
             
-            banco_agua = sqlite3.connect(nome_banco)
-            cursor = banco_agua.cursor()
-            cursor.execute("CREATE TABLE IF NOT EXISTS registros (data DATE, litros FLOAT)")
-            banco_agua.commit()
-            return banco_agua, cursor
+                cursor.execute("CREATE TABLE IF NOT EXISTS registros (data DATE, litros FLOAT)")
+                banco_agua.commit()
+                return banco_agua, cursor
 
         def registrar_agua():
             litros = float(entry_litros.get())
@@ -302,7 +299,7 @@ def abrirtela_principal():
             banco_agua, cursor = conectar_banco()
             data_atual = datetime.date.today()
 
-            cursor.execute("SELECT * FROM registros WHERE data=?", (data_atual,))
+            cursor.execute("SELECT litros FROM registros WHERE data=?", (data_atual,))
             registro_existente = cursor.fetchone()
 
             if registro_existente:
@@ -423,7 +420,7 @@ def abrirtela_principal():
         tela_informes.title('Heath Point')
         center(tela_informes)
 
-        fundo_tela_informes = PhotoImage(file='imgs\\infor.png')
+        fundo_tela_informes = PhotoImage(file='imgs\\Facul-TelaNewInfo.png')
         label_informes = Label(tela_informes, image=fundo_tela_informes)
         label_informes.pack()
 
@@ -471,8 +468,9 @@ def abrirtela_principal():
             except sqlite3.Error as erro:
                 print("Erro nos dados: ", erro)
 
-        botao = Button(tela_informes, command=atualizar)
-        botao.place(x=400, y=400)
+        fundobotao = PhotoImage(file='imgs\\Facul-BottonSalvar.png')
+        botao = Button(tela_informes, image=fundobotao, borderwidth=0, command=atualizar)
+        botao.place(x=572, y=574)
     
         tela_informes.mainloop()
 
